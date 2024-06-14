@@ -1,7 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Threading;
-static int ProcessArray(int x)
+static int ProcessArray(int x, object locker, out int time)
 {
+    int count = 0;
     // Генерация случайного размера массива
     Random random = new();
     int arraySize = random.Next(10000000, 15000001);
@@ -11,31 +12,38 @@ static int ProcessArray(int x)
 
     // Сортировка массива по возрастанию
     Array.Sort(array);
-
-    // Подсчет элементов, равных x
-    int count = array.Count(element => element == x);
-
+    Stopwatch stopwatch = new();
+    stopwatch.Start();
+    lock (locker)
+    {
+        stopwatch.Stop();
+        time = stopwatch.Elapsed.Milliseconds;
+        count = array.Count(element => element == x);
+        // Подсчет элементов, равных x
+    }
     return count;
+    
 }
 void Method1()
 {
     int x = 500;
     List<int> executionTimes = [];
     Thread[] threads = new Thread[10];
+    object locker = new();
     for (int i = 0; i < 10; i++)
     {
         int count = 0;
+        int time = 0;
         threads[i] = new(() =>
         {
             // Измеряем время выполнения метода
-            Stopwatch stopwatch = new();
-            stopwatch.Start();
-            count = ProcessArray(x);
-            stopwatch.Stop();
-            executionTimes.Add(stopwatch.Elapsed.Milliseconds);
+            
+            count = ProcessArray(x, locker, out time);
+            if(time != 0)
+                executionTimes.Add(time);
 
             // Выводим результат для текущего потока
-            Console.WriteLine($"Количество элементов, равных {x}: {count}, Время выполнения: {stopwatch.Elapsed.Milliseconds}");
+            Console.WriteLine($"Количество элементов, равных {x}: {count}, Время выполнения: {time}");
         });
 
         // Запускаем поток
