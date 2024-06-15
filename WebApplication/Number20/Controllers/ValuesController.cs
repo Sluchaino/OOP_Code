@@ -5,8 +5,9 @@ using Number20server.Model;
 
 namespace Number20server.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+
     public class ValuesController : ControllerBase
     {
         // GET: api/<ValuesController>

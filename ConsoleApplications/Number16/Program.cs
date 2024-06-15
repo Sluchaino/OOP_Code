@@ -36,7 +36,6 @@ void Method1()
         int time = 0;
         threads[i] = new(() =>
         {
-            // Измеряем время выполнения метода
             
             count = ProcessArray(x, locker, out time);
             if(time != 0)
